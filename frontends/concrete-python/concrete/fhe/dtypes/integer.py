@@ -11,6 +11,30 @@ import numpy as np
 from .base import BaseDataType
 
 
+def _integer_bounds_from_object_array(array: np.ndarray) -> tuple[int, int]:
+    """Extract minimum and maximum integer values from an object numpy array."""
+
+    integers: list[int] = []
+
+    for element in array.flat:
+        if isinstance(element, (bool, np.bool_)):
+            integers.append(int(element))
+            continue
+
+        if isinstance(element, (int, np.integer)):
+            integers.append(int(element))
+            continue
+
+        message = f"Integer cannot represent {repr(array)}"
+        raise ValueError(message)
+
+    if not integers:
+        message = f"Integer cannot represent {repr(array)}"
+        raise ValueError(message)
+
+    return min(integers), max(integers)
+
+
 class Integer(BaseDataType):
     """
     Integer class, to represent integers.
@@ -64,18 +88,28 @@ class Integer(BaseDataType):
 
         if isinstance(value, list):
             try:
-                value = np.array(value, dtype=np.int64)
+                value = np.array(value)
             except Exception:  # pylint: disable=broad-except
                 # here we try our best to convert the list to np.ndarray
                 # if it fails we raise the exception at the else branch below
                 pass
 
-        if isinstance(value, (int, np.integer)):
+        if isinstance(value, (bool, np.bool_, int, np.integer)):
             lower_bound = int(value)
             upper_bound = int(value)
-        elif isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.integer):
-            lower_bound = int(value.min())
-            upper_bound = int(value.max())
+        elif isinstance(value, np.ndarray):
+            if value.size == 0:
+                message = f"Integer cannot represent {repr(value)}"
+                raise ValueError(message)
+
+            if np.issubdtype(value.dtype, np.integer) or np.issubdtype(value.dtype, np.bool_):
+                lower_bound = int(value.min())
+                upper_bound = int(value.max())
+            elif value.dtype == object:
+                lower_bound, upper_bound = _integer_bounds_from_object_array(value)
+            else:
+                message = f"Integer cannot represent {repr(value)}"
+                raise ValueError(message)
         else:
             message = f"Integer cannot represent {repr(value)}"
             raise ValueError(message)
@@ -172,3 +206,4 @@ class Integer(BaseDataType):
 SignedInteger = partial(Integer, True)
 
 UnsignedInteger = partial(Integer, False)
+

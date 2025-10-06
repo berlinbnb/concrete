@@ -121,6 +121,31 @@ from concrete.fhe.dtypes import Integer, SignedInteger, UnsignedInteger
             True,
             SignedInteger(2),
         ),
+        pytest.param(
+            [2**63],
+            False,
+            UnsignedInteger(64),
+        ),
+        pytest.param(
+            [2**63],
+            True,
+            SignedInteger(65),
+        ),
+        pytest.param(
+            np.array([2**63], dtype=object),
+            False,
+            UnsignedInteger(64),
+        ),
+        pytest.param(
+            np.array([2**63], dtype=object),
+            True,
+            SignedInteger(65),
+        ),
+        pytest.param(
+            [2**100],
+            False,
+            UnsignedInteger(101),
+        ),
     ],
 )
 def test_integer_that_can_represent(value, force_signed, expected_result):
@@ -689,3 +714,4 @@ def test_integer_can_represent(data_type, value, expected_result):
     """
 
     assert data_type.can_represent(value) == expected_result
+
