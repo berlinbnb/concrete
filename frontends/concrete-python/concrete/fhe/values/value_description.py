@@ -74,12 +74,17 @@ class ValueDescription:
                     dtype=UnsignedInteger(1), shape=value.shape, is_encrypted=is_encrypted
                 )
 
-            if np.issubdtype(value.dtype, np.integer):
-                return ValueDescription(
-                    dtype=Integer.that_can_represent(value),
-                    shape=value.shape,
-                    is_encrypted=is_encrypted,
-                )
+            if np.issubdtype(value.dtype, np.integer) or value.dtype == object:
+                try:
+                    integer_dtype = Integer.that_can_represent(value)
+                except ValueError:
+                    pass
+                else:
+                    return ValueDescription(
+                        dtype=integer_dtype,
+                        shape=value.shape,
+                        is_encrypted=is_encrypted,
+                    )
 
             if np.issubdtype(value.dtype, np.float64):
                 return ValueDescription(
@@ -171,3 +176,4 @@ class ValueDescription:
         """
 
         return int(np.prod(self.shape))
+

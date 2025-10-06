@@ -89,6 +89,36 @@ from concrete.fhe.values import (
             ValueDescription(dtype=UnsignedInteger(2), shape=(4,), is_encrypted=True),
         ),
         pytest.param(
+            [2**63],
+            False,
+            ValueDescription(dtype=UnsignedInteger(64), shape=(1,), is_encrypted=False),
+        ),
+        pytest.param(
+            [2**63],
+            True,
+            ValueDescription(dtype=UnsignedInteger(64), shape=(1,), is_encrypted=True),
+        ),
+        pytest.param(
+            np.array([2**63], dtype=object),
+            False,
+            ValueDescription(dtype=UnsignedInteger(64), shape=(1,), is_encrypted=False),
+        ),
+        pytest.param(
+            np.array([2**63], dtype=object),
+            True,
+            ValueDescription(dtype=UnsignedInteger(64), shape=(1,), is_encrypted=True),
+        ),
+        pytest.param(
+            [2**100],
+            False,
+            ValueDescription(dtype=UnsignedInteger(101), shape=(1,), is_encrypted=False),
+        ),
+        pytest.param(
+            [2**100],
+            True,
+            ValueDescription(dtype=UnsignedInteger(101), shape=(1,), is_encrypted=True),
+        ),
+        pytest.param(
             np.array([0.2, 3.4, 1.5, 2.0], dtype=np.float64),
             False,
             ValueDescription(dtype=Float(64), shape=(4,), is_encrypted=False),
@@ -325,3 +355,4 @@ def test_value_size(value, expected_result):
     """
 
     assert value.size == expected_result
+
